@@ -2,13 +2,11 @@ name: Publish
 
 on:
   push:
-    tags:
-      - '*'
 
 jobs:
   publish:
     name: "Publish release"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-22.04"
 
     environment:
       name: deploy
@@ -22,8 +20,12 @@ jobs:
         run: "scripts/install"
       - name: "Build package & docs"
         run: "scripts/build"
-      - name: "Publish to PyPI & deploy docs"
-        run: "scripts/publish"
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      - name: "Upload artifacts"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: starlette
+          path: "dist/*"
